@@ -1,7 +1,41 @@
-from flask import Flask
+from flask import Flask, request, flash, url_for, redirect, render_template
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///realstate_tn.db'
+app.config['SECRET_KEY'] = "random string"
 
-@app.route("/")
-def index():
-    return "Hello World!"
+db = SQLAlchemy(app)
+
+class Properties(db.Model):
+   id = db.Column(db.Integer, primary_key = True)
+   name = db.Column(db.String(100))
+   price = db.Column(db.Integer)
+   
+   def __init__(self, id, name, price):
+       self.id = id
+       self.name = name
+       self.price = price
+
+
+@app.route('/')
+def show_all():
+   return render_template('show_all.html', properties = Properties.query.all() )
+
+# @app.route('/new', methods = ['GET', 'POST'])
+# def new():
+#    if request.method == 'POST':
+#       if not request.form['name'] or not request.form['city'] or not request.form['addr']:
+#          flash('Please enter all the fields', 'error')
+#       else:
+#          student = Students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
+         
+#          db.session.add(student)
+#          db.session.commit()
+#          flash('Record was successfully added')
+#          return redirect(url_for('show_all'))
+#    return render_template('new.html')
+
+if __name__ == '__main__':
+   db.create_all()
+   app.run(debug = True)
